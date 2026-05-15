@@ -16,7 +16,6 @@
     --gray: #6b7280;
     --border: #e5e7eb;
     --white: #ffffff;
-    /* カテゴリ色 */
     --drug: #1e5fa8;
     --drug-pale: #e8f0fb;
     --pharmacy: #1a6b4a;
@@ -87,15 +86,6 @@
     text-align: center;
   }
 
-  .hero-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-
   .hero h1 {
     font-family: 'DM Serif Display', serif;
     font-size: 32px;
@@ -145,14 +135,9 @@
 
   .filter-btn.active { background: var(--green); color: white; border-color: var(--green); }
 
-  .filter-wrapper {
-    margin-bottom: 24px;
-  }
+  .filter-wrapper { margin-bottom: 24px; }
 
-  .filter-footer {
-    display: flex;
-    justify-content: flex-end;
-  }
+  .filter-footer { display: flex; justify-content: flex-end; }
 
   .filter-bar {
     display: flex;
@@ -237,9 +222,9 @@
   .badge-pharmacy { background: var(--pharmacy-pale); color: var(--pharmacy); }
   .badge-pharma   { background: var(--pharma-pale);   color: var(--pharma); }
 
-  .card-drug     { border-left: 12px solid var(--drug);     background: var(--white); }
-  .card-pharmacy { border-left: 12px solid var(--pharmacy); background: var(--white); }
-  .card-pharma   { border-left: 12px solid var(--pharma);   background: var(--white); }
+  .card-drug     { border-left: 12px solid var(--drug); }
+  .card-pharmacy { border-left: 12px solid var(--pharmacy); }
+  .card-pharma   { border-left: 12px solid var(--pharma); }
 
   .date-drug     { background: var(--drug-pale); }
   .date-pharmacy { background: var(--pharmacy-pale); }
@@ -259,9 +244,8 @@
 
   .event-tag { font-size: 11px; color: var(--gray); }
 
+  /* 申込ボタン共通 */
   .btn-apply {
-    background: var(--green);
-    color: white;
     padding: 9px 16px;
     border-radius: 8px;
     font-size: 12px;
@@ -270,13 +254,33 @@
     cursor: pointer;
     font-family: 'Noto Sans JP', sans-serif;
     white-space: nowrap;
-    transition: background 0.2s;
-    text-decoration: none;
-    display: inline-block;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
+    color: white;
   }
 
-  .btn-apply:hover { background: var(--green-light); }
+  .btn-apply:hover { opacity: 0.85; transform: scale(1.03); }
+
+  /* 申込済みボタン */
+  .btn-applied {
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px solid var(--border);
+    cursor: default;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    background: var(--white);
+    color: var(--green);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
 
   .empty {
     text-align: center;
@@ -288,6 +292,7 @@
     border: 1px dashed var(--border);
   }
 
+  /* モーダル共通 */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -308,6 +313,12 @@
     width: 100%;
     max-width: 400px;
     position: relative;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
   }
 
   .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
@@ -325,9 +336,7 @@
   }
 
   .form-group { margin-bottom: 14px; }
-
   .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
-
   .form-group input, .form-group select {
     width: 100%;
     padding: 10px 12px;
@@ -338,7 +347,6 @@
     outline: none;
     transition: border-color 0.2s;
   }
-
   .form-group input:focus, .form-group select:focus { border-color: var(--green); }
 
   .form-error { color: #dc2626; font-size: 12px; margin-top: 8px; display: none; }
@@ -357,6 +365,69 @@
     font-size: 12px;
     font-weight: 700;
   }
+
+  /* ===== 申し込み確認モーダル ===== */
+  #applyModal .modal { max-width: 440px; }
+
+  .apply-event-summary {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .apply-event-summary .summary-date-box {
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    min-width: 52px;
+    flex-shrink: 0;
+  }
+
+  .apply-event-summary .summary-date-box .s-month { font-size: 10px; font-weight: 700; }
+  .apply-event-summary .summary-date-box .s-day   { font-size: 22px; font-weight: 700; line-height: 1; }
+  .apply-event-summary .summary-date-box .s-week  { font-size: 10px; color: var(--gray); margin-top: 2px; }
+
+  .apply-event-summary .summary-info { flex: 1; }
+  .apply-event-summary .summary-company { font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+  .apply-event-summary .summary-title   { font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+  .apply-event-summary .summary-format  { font-size: 11px; color: var(--gray); }
+
+  .apply-note {
+    font-size: 12px;
+    color: var(--gray);
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .apply-btn-row { display: flex; gap: 10px; }
+  .apply-btn-row .btn { flex: 1; padding: 12px; font-size: 14px; text-align: center; }
+
+  /* ===== 完了モーダル ===== */
+  .apply-success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--green-pale);
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+  }
+
+  #doneModal .modal { text-align: center; }
+  #doneModal h2 { margin-bottom: 8px; }
+  #doneModal .done-sub { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
 </style>
 </head>
 <body>
@@ -386,16 +457,6 @@
   <div class="filter-wrapper">
     <div class="filter-bar" id="filterBar">
       <button class="filter-btn active" onclick="filterEvents('all', this)">すべて</button>
-      <button class="filter-btn" onclick="filterEvents('sandrug', this)">サンドラッグ</button>
-      <button class="filter-btn" onclick="filterEvents('unismile', this)">ユニスマイル</button>
-      <button class="filter-btn" onclick="filterEvents('welcia', this)">ウェルシア</button>
-      <button class="filter-btn" onclick="filterEvents('sugi', this)">スギ薬局</button>
-      <button class="filter-btn" onclick="filterEvents('ain', this)">アイン薬局</button>
-      <button class="filter-btn" onclick="filterEvents('aoki', this)">クスリのアオキ</button>
-      <button class="filter-btn" onclick="filterEvents('astellas', this)">アステラス製薬</button>
-      <button class="filter-btn" onclick="filterEvents('chugai', this)">中外製薬</button>
-      <button class="filter-btn" onclick="filterEvents('online', this)">オンライン</button>
-      <button class="filter-btn" onclick="filterEvents('offline', this)">対面</button>
     </div>
     <div class="filter-footer">
       <button class="toggle-filter" id="toggleFilter" onclick="toggleFilterBar()">▼ すべて見る</button>
@@ -405,7 +466,7 @@
   <div id="eventList"></div>
 </div>
 
-<!-- LOGIN -->
+<!-- ===== ログインモーダル ===== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('login')">×</button>
@@ -425,7 +486,7 @@
   </div>
 </div>
 
-<!-- SIGNUP -->
+<!-- ===== 新規登録モーダル ===== -->
 <div class="modal-overlay" id="signupModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('signup')">×</button>
@@ -462,6 +523,40 @@
   </div>
 </div>
 
+<!-- ===== 申し込み確認モーダル ===== -->
+<div class="modal-overlay" id="applyModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('apply')">×</button>
+    <h2>説明会に申し込む</h2>
+    <p>以下の説明会への参加を申し込みます</p>
+
+    <div class="apply-event-summary" id="applyEventSummary">
+      <!-- JS で注入 -->
+    </div>
+
+    <div class="apply-note">
+      ⚠️ 申し込み後、登録メールアドレスに確認メールが届く場合があります。<br>
+      キャンセルは各企業の案内に従ってください。
+    </div>
+
+    <div class="apply-btn-row">
+      <button class="btn btn-outline" onclick="closeModal('apply')">キャンセル</button>
+      <button class="btn btn-primary" id="confirmApplyBtn" onclick="confirmApply()">申し込む</button>
+    </div>
+    <div class="form-error" id="applyError"></div>
+  </div>
+</div>
+
+<!-- ===== 申し込み完了モーダル ===== -->
+<div class="modal-overlay" id="doneModal">
+  <div class="modal">
+    <div class="apply-success-icon">✓</div>
+    <h2>申し込み完了！</h2>
+    <p class="done-sub">説明会への参加申し込みが完了しました。<br>当日のご参加をお待ちしています。</p>
+    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px" onclick="closeModal('done')">閉じる</button>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://hufguvidrswxlhprjyml.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_kyQQMZTUlUsC0Vj9ja4m1w_XN7KWXUK';
@@ -474,50 +569,21 @@ const MICROCMS_API_KEY = 'bJyV9hKfeuXjgAGC1dcRW9pGdlDL2JEXkbyd';
 let currentUser = null;
 let currentFilter = 'all';
 let allEvents = [];
+let appliedEventIds = new Set(); // 申込済みイベントID
+let pendingApplyEvent = null;    // 確認モーダル中のイベント
 const weekdays = ['日','月','火','水','木','金','土'];
 
-async function fetchEvents() {
-  const list = document.getElementById('eventList');
-  list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray)">読み込み中...</div>';
-  try {
-    const res = await fetch(
-      `https://${MICROCMS_SERVICE_ID}.microcms.io/api/v1/events?limit=100&orders=date`,
-      { headers: { 'X-MICROCMS-API-KEY': MICROCMS_API_KEY } }
-    );
-    const data = await res.json();
-    allEvents = data.contents.map(e => ({
-      id: e.id,
-      company: e.company,
-      companyKey: e.company.replace(/\s/g, '').toLowerCase(),
-      category: e.category,
-      title: e.title,
-      date: e.date,
-      format: e.format,
-      formatKey: e.format && e.format.includes('オンライン') ? 'online' : 'offline',
-      url: e.url || '#',
-    }));
-    renderList();
-    updateFilterButtons();
-  } catch(err) {
-    list.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626">データの読み込みに失敗しました</div>';
-  }
-}
-
-function updateFilterButtons() {
-  const companies = [...new Set(allEvents.map(e => e.company))];
-  const bar = document.getElementById('filterBar');
-  const staticBtns = `
-    <button class="filter-btn active" onclick="filterEvents('all', this)">すべて</button>
-    ${companies.map(c => `<button class="filter-btn" onclick="filterEvents('${c}', this)">${c}</button>`).join('')}
-    <button class="filter-btn" onclick="filterEvents('online', this)">オンライン</button>
-    <button class="filter-btn" onclick="filterEvents('offline', this)">対面</button>
-  `;
-  bar.innerHTML = staticBtns;
-}
-
-db.auth.onAuthStateChange((event, session) => {
+// ─── Supabase Auth ──────────────────────────────────────────────
+db.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user || null;
   updateNav();
+  if (currentUser) {
+    await loadMyApplications();
+    renderList();
+  } else {
+    appliedEventIds.clear();
+    renderList();
+  }
 });
 
 function updateNav() {
@@ -538,23 +604,39 @@ function updateNav() {
   }
 }
 
+// 自分の申し込み済みIDをSupabaseから取得
+async function loadMyApplications() {
+  if (!currentUser) return;
+  const { data, error } = await db
+    .from('applications')
+    .select('event_id')
+    .eq('user_id', currentUser.id);
+  if (!error && data) {
+    appliedEventIds = new Set(data.map(r => r.event_id));
+  }
+}
+
 async function handleLogin() {
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
   const { error } = await db.auth.signInWithPassword({ email, password });
-  if (error) { errEl.textContent = 'メールアドレスまたはパスワードが正しくありません'; errEl.style.display = 'block'; }
-  else closeModal('login');
+  if (error) {
+    errEl.textContent = 'メールアドレスまたはパスワードが正しくありません';
+    errEl.style.display = 'block';
+  } else {
+    closeModal('login');
+  }
 }
 
 async function handleSignup() {
-  const email = document.getElementById('signupEmail').value;
+  const email    = document.getElementById('signupEmail').value;
   const password = document.getElementById('signupPassword').value;
-  const name = document.getElementById('signupName').value;
-  const univ = document.getElementById('signupUniv').value;
-  const year = document.getElementById('signupYear').value;
-  const errEl = document.getElementById('signupError');
+  const name     = document.getElementById('signupName').value;
+  const univ     = document.getElementById('signupUniv').value;
+  const year     = document.getElementById('signupYear').value;
+  const errEl    = document.getElementById('signupError');
   errEl.style.display = 'none';
 
   if (!email || !password || !name || !univ || !year) {
@@ -567,15 +649,69 @@ async function handleSignup() {
     errEl.style.display = 'block';
     return;
   }
-  const { error } = await db.auth.signUp({ email, password, options: { data: { name, university: univ, year } } });
-  if (error) { errEl.textContent = '登録に失敗しました: ' + error.message; errEl.style.display = 'block'; }
-  else { closeModal('signup'); alert('確認メールを送信しました。メールをご確認ください。'); }
+  const { error } = await db.auth.signUp({
+    email, password,
+    options: { data: { name, university: univ, year } }
+  });
+  if (error) {
+    errEl.textContent = '登録に失敗しました: ' + error.message;
+    errEl.style.display = 'block';
+  } else {
+    closeModal('signup');
+    alert('確認メールを送信しました。メールをご確認ください。');
+  }
 }
 
-async function handleLogout() { await db.auth.signOut(); }
+async function handleLogout() {
+  await db.auth.signOut();
+}
 
-function openModal(type) { document.getElementById(type + 'Modal').classList.add('active'); }
-function closeModal(type) { document.getElementById(type + 'Modal').classList.remove('active'); }
+// ─── microCMS ───────────────────────────────────────────────────
+async function fetchEvents() {
+  const list = document.getElementById('eventList');
+  list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray)">読み込み中...</div>';
+  try {
+    const res = await fetch(
+      `https://${MICROCMS_SERVICE_ID}.microcms.io/api/v1/events?limit=100&orders=date`,
+      { headers: { 'X-MICROCMS-API-KEY': MICROCMS_API_KEY } }
+    );
+    const data = await res.json();
+    allEvents = data.contents.map(e => ({
+      id:         e.id,
+      company:    e.company,
+      category:   e.category || 'drug',
+      title:      e.title,
+      date:       e.date,
+      format:     e.format,
+      formatKey:  e.format && e.format.includes('オンライン') ? 'online' : 'offline',
+    }));
+    updateFilterButtons();
+    renderList();
+  } catch(err) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626">データの読み込みに失敗しました</div>';
+  }
+}
+
+function updateFilterButtons() {
+  const companies = [...new Set(allEvents.map(e => e.company))];
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = `
+    <button class="filter-btn active" onclick="filterEvents('all', this)">すべて</button>
+    ${companies.map(c =>
+      `<button class="filter-btn" onclick="filterEvents('${c}', this)">${c}</button>`
+    ).join('')}
+    <button class="filter-btn" onclick="filterEvents('online', this)">オンライン</button>
+    <button class="filter-btn" onclick="filterEvents('offline', this)">対面</button>
+  `;
+}
+
+// ─── フィルター & レンダリング ───────────────────────────────────
+function filterEvents(key, btn) {
+  currentFilter = key;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
 
 function toggleFilterBar() {
   const bar = document.getElementById('filterBar');
@@ -584,20 +720,13 @@ function toggleFilterBar() {
   btn.textContent = bar.classList.contains('expanded') ? '▲ 閉じる' : '▼ すべて見る';
 }
 
-function filterEvents(key, btn) {
-  currentFilter = key;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderList();
-}
-
 function renderList() {
   const list = document.getElementById('eventList');
   let filtered = allEvents.filter(e => new Date(e.date) >= new Date());
 
-  if (currentFilter === 'online') filtered = filtered.filter(e => e.formatKey === 'online');
+  if (currentFilter === 'online')       filtered = filtered.filter(e => e.formatKey === 'online');
   else if (currentFilter === 'offline') filtered = filtered.filter(e => e.formatKey === 'offline');
-  else if (currentFilter !== 'all') filtered = filtered.filter(e => e.company === currentFilter);
+  else if (currentFilter !== 'all')     filtered = filtered.filter(e => e.company === currentFilter);
 
   filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
   document.getElementById('countBadge').textContent = filtered.length + '件';
@@ -615,13 +744,17 @@ function renderList() {
     grouped[key].push(e);
   });
 
-  const labelMap = { drug: 'ドラッグストア', pharmacy: '調剤薬局', general: '一般企業' };
+  const labelMap = { drug: 'ドラッグストア', pharmacy: '調剤薬局', pharma: '製薬会社' };
 
   list.innerHTML = Object.entries(grouped).map(([month, events]) => `
     <div class="section-label">${month}</div>
     ${events.map(e => {
       const d = new Date(e.date);
       const c = e.category || 'drug';
+      const isApplied = appliedEventIds.has(e.id);
+      const applyBtn = isApplied
+        ? `<span class="btn-applied">✓ 申込済み</span>`
+        : `<button class="btn-apply apply-${c}" onclick="openApplyModal('${e.id}')">申し込む</button>`;
       return `
         <div class="event-card card-${c}">
           <div class="event-date-box date-${c}">
@@ -639,13 +772,106 @@ function renderList() {
               <span class="event-tag">📍 ${e.format}</span>
             </div>
           </div>
-          <a class="btn-apply apply-${c}" href="${e.url}?utm_source=pharmacalendar" target="_blank">申込む</a>
+          ${applyBtn}
         </div>
       `;
     }).join('')}
   `).join('');
 }
 
+// ─── 申し込みモーダル ────────────────────────────────────────────
+function openApplyModal(eventId) {
+  // 未ログインならログインへ誘導
+  if (!currentUser) {
+    openModal('login');
+    return;
+  }
+
+  const event = allEvents.find(e => e.id === eventId);
+  if (!event) return;
+  pendingApplyEvent = event;
+
+  // サマリー描画
+  const d = new Date(event.date);
+  const c = event.category || 'drug';
+  const labelMap = { drug: 'ドラッグストア', pharmacy: '調剤薬局', pharma: '製薬会社' };
+  document.getElementById('applyEventSummary').innerHTML = `
+    <div class="summary-date-box date-${c}">
+      <div class="s-month day-${c}">${d.getMonth()+1}月</div>
+      <div class="s-day day-${c}">${d.getDate()}</div>
+      <div class="s-week">${weekdays[d.getDay()]}曜</div>
+    </div>
+    <div class="summary-info">
+      <div class="summary-company">${event.company}
+        <span class="category-badge badge-${c}">${labelMap[c] || c}</span>
+      </div>
+      <div class="summary-title">${event.title}</div>
+      <div class="summary-format">📍 ${event.format}</div>
+    </div>
+  `;
+
+  const errEl = document.getElementById('applyError');
+  errEl.style.display = 'none';
+  document.getElementById('confirmApplyBtn').disabled = false;
+  document.getElementById('confirmApplyBtn').textContent = '申し込む';
+
+  openModal('apply');
+}
+
+async function confirmApply() {
+  if (!currentUser || !pendingApplyEvent) return;
+
+  const btn = document.getElementById('confirmApplyBtn');
+  const errEl = document.getElementById('applyError');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+  errEl.style.display = 'none';
+
+  const { error } = await db.from('applications').insert({
+    user_id:     currentUser.id,
+    event_id:    pendingApplyEvent.id,
+    event_title: pendingApplyEvent.title,
+    event_date:  pendingApplyEvent.date,
+    company:     pendingApplyEvent.company,
+    format:      pendingApplyEvent.format,
+  });
+
+  if (error) {
+    if (error.code === '23505') {
+      // unique制約違反 = すでに申込済み
+      errEl.textContent = 'この説明会はすでに申し込み済みです。';
+    } else {
+      errEl.textContent = '申し込みに失敗しました。もう一度お試しください。';
+    }
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '申し込む';
+    return;
+  }
+
+  // ローカルのSet更新 → 即座にボタン反映
+  appliedEventIds.add(pendingApplyEvent.id);
+  pendingApplyEvent = null;
+
+  closeModal('apply');
+  renderList();
+  openModal('done');
+}
+
+// ─── モーダル開閉 ────────────────────────────────────────────────
+function openModal(type)  { document.getElementById(type + 'Modal').classList.add('active'); }
+function closeModal(type) { document.getElementById(type + 'Modal').classList.remove('active'); }
+
+// オーバーレイクリックで閉じる
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      overlay.classList.remove('active');
+    }
+  });
+});
+
+// ─── 初期化 ─────────────────────────────────────────────────────
 fetchEvents();
 </script>
 </body>
