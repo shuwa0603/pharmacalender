@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ファーマカレンダー | 薬学生専用 就活説明会</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --green: #1a6b4a;
+    --green-light: #2d9b6f;
+    --green-pale: #e8f5ef;
+    --cream: #fafaf7;
+    --dark: #1a1a1a;
+    --gray: #6b7280;
+    --border: #e5e7eb;
+    --white: #ffffff;
+    /* カテゴリ色 */
+    --drug: #1e5fa8;
+    --drug-pale: #e8f0fb;
+    --pharmacy: #1a6b4a;
+    --pharmacy-pale: #e8f5ef;
+    --pharma: #c0392b;
+    --pharma-pale: #fdecea;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--green);
+  }
+
+  .logo span {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--gray);
+    display: block;
+    margin-top: -4px;
+  }
+
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--dark); }
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+  .btn-primary { background: var(--green); color: var(--white); }
+  .btn-primary:hover { background: var(--green-light); }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green) 0%, #0d4a32 100%);
+    color: white;
+    padding: 8px 24px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .hero p { font-size: 14px; opacity: 0.8; font-weight: 300; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+
+  .list-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .list-header-title { font-size: 16px; font-weight: 700; }
+
+  .count-badge {
+    background: var(--green-pale);
+    color: var(--green);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--gray);
+    transition: all 0.2s;
+  }
+
+  .filter-btn.active { background: var(--green); color: white; border-color: var(--green); }
+
+  .filter-wrapper {
+    margin-bottom: 24px;
+  }
+
+  .filter-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-height: 88px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-bottom: 8px;
+  }
+
+  .filter-bar.expanded { max-height: 400px; }
+
+  .toggle-filter {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--green);
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .toggle-filter:hover { background: var(--green-pale); }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+
+  .section-label:first-child { margin-top: 0; }
+
+  .event-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .event-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+  .event-date-box {
+    background: var(--green-pale);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+    min-width: 58px;
+    flex-shrink: 0;
+  }
+
+  .event-date-box .month { font-size: 10px; color: var(--green); font-weight: 700; }
+  .event-date-box .day { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; }
+  .event-date-box .weekday { font-size: 10px; color: var(--gray); margin-top: 2px; }
+
+  .event-info { flex: 1; min-width: 0; }
+
+  .event-company { font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+
+  .category-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .badge-drug     { background: var(--drug-pale);     color: var(--drug); }
+  .badge-pharmacy { background: var(--pharmacy-pale); color: var(--pharmacy); }
+  .badge-pharma   { background: var(--pharma-pale);   color: var(--pharma); }
+
+  .card-drug     { border-left: 12px solid var(--drug);     background: var(--white); }
+  .card-pharmacy { border-left: 12px solid var(--pharmacy); background: var(--white); }
+  .card-pharma   { border-left: 12px solid var(--pharma);   background: var(--white); }
+
+  .date-drug     { background: var(--drug-pale); }
+  .date-pharmacy { background: var(--pharmacy-pale); }
+  .date-pharma   { background: var(--pharma-pale); }
+
+  .day-drug     { color: var(--drug); }
+  .day-pharmacy { color: var(--pharmacy); }
+  .day-pharma   { color: var(--pharma); }
+
+  .apply-drug     { background: var(--drug); }
+  .apply-pharmacy { background: var(--pharmacy); }
+  .apply-pharma   { background: var(--pharma); }
+
+  .event-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; }
+
+  .event-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .event-tag { font-size: 11px; color: var(--gray); }
+
+  .btn-apply {
+    background: var(--green);
+    color: white;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    transition: background 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .btn-apply:hover { background: var(--green-light); }
+
+  .empty {
+    text-align: center;
+    padding: 48px 32px;
+    color: var(--gray);
+    font-size: 14px;
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .modal > p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--gray);
+  }
+
+  .form-group { margin-bottom: 14px; }
+
+  .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus { border-color: var(--green); }
+
+  .form-error { color: #dc2626; font-size: 12px; margin-top: 8px; display: none; }
+
+  .user-info { display: flex; align-items: center; gap: 8px; }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    PharmaCalendar
+    <span>薬学生専用 就活説明会</span>
+  </div>
+  <div class="nav-right" id="navRight">
+    <button class="btn btn-outline" onclick="openModal('login')">ログイン</button>
+    <button class="btn btn-primary" onclick="openModal('signup')">新規登録</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>説明会を<br>まとめて確認</h1>
+  <p>薬局・ドラッグストアの説明会を<br>一覧で表示</p>
+</div>
+
+<div class="container">
+  <div class="list-header">
+    <div class="list-header-title">開催予定の説明会</div>
+    <div class="count-badge" id="countBadge">0件</div>
+  </div>
+
+  <div class="filter-wrapper">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" onclick="filterEvents('all', this)">すべて</button>
+      <button class="filter-btn" onclick="filterEvents('sandrug', this)">サンドラッグ</button>
+      <button class="filter-btn" onclick="filterEvents('unismile', this)">ユニスマイル</button>
+      <button class="filter-btn" onclick="filterEvents('welcia', this)">ウェルシア</button>
+      <button class="filter-btn" onclick="filterEvents('sugi', this)">スギ薬局</button>
+      <button class="filter-btn" onclick="filterEvents('ain', this)">アイン薬局</button>
+      <button class="filter-btn" onclick="filterEvents('aoki', this)">クスリのアオキ</button>
+      <button class="filter-btn" onclick="filterEvents('astellas', this)">アステラス製薬</button>
+      <button class="filter-btn" onclick="filterEvents('chugai', this)">中外製薬</button>
+      <button class="filter-btn" onclick="filterEvents('online', this)">オンライン</button>
+      <button class="filter-btn" onclick="filterEvents('offline', this)">対面</button>
+    </div>
+    <div class="filter-footer">
+      <button class="toggle-filter" id="toggleFilter" onclick="toggleFilterBar()">▼ すべて見る</button>
+    </div>
+  </div>
+
+  <div id="eventList"></div>
+</div>
+
+<!-- LOGIN -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">×</button>
+    <h2>ログイン</h2>
+    <p>薬学生アカウントでログイン</p>
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="loginEmail" placeholder="example@pharm.ac.jp">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="loginPassword" placeholder="パスワード">
+    </div>
+    <div class="form-error" id="loginError"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;margin-top:8px" onclick="handleLogin()">ログイン</button>
+    <p style="text-align:center;margin-top:12px;font-size:12px">アカウントがない方は <a href="#" onclick="closeModal('login');openModal('signup')" style="color:var(--green)">新規登録</a></p>
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div class="modal-overlay" id="signupModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signup')">×</button>
+    <h2>新規登録</h2>
+    <p>薬学生専用の就活サービス</p>
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="signupEmail" placeholder="example@pharm.ac.jp">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="signupPassword" placeholder="8文字以上">
+    </div>
+    <div class="form-group">
+      <label>お名前</label>
+      <input type="text" id="signupName" placeholder="薬学 太郎">
+    </div>
+    <div class="form-group">
+      <label>大学名</label>
+      <input type="text" id="signupUniv" placeholder="○○大学薬学部">
+    </div>
+    <div class="form-group">
+      <label>学年</label>
+      <select id="signupYear">
+        <option value="">選択してください</option>
+        <option value="4">4年生</option>
+        <option value="5">5年生</option>
+        <option value="6">6年生</option>
+      </select>
+    </div>
+    <div class="form-error" id="signupError"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;margin-top:8px" onclick="handleSignup()">登録する</button>
+    <p style="text-align:center;margin-top:12px;font-size:12px">すでにアカウントをお持ちの方は <a href="#" onclick="closeModal('signup');openModal('login')" style="color:var(--green)">ログイン</a></p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hufguvidrswxlhprjyml.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_kyQQMZTUlUsC0Vj9ja4m1w_XN7KWXUK';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const MICROCMS_SERVICE_ID = 'pharmacalendar';
+const MICROCMS_API_KEY = 'bJyV9hKfeuXjgAGC1dcRW9pGdlDL2JEXkbyd';
+
+let currentUser = null;
+let currentFilter = 'all';
+let allEvents = [];
+const weekdays = ['日','月','火','水','木','金','土'];
+
+async function fetchEvents() {
+  const list = document.getElementById('eventList');
+  list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray)">読み込み中...</div>';
+  try {
+    const res = await fetch(
+      `https://${MICROCMS_SERVICE_ID}.microcms.io/api/v1/events?limit=100&orders=date`,
+      { headers: { 'X-MICROCMS-API-KEY': MICROCMS_API_KEY } }
+    );
+    const data = await res.json();
+    allEvents = data.contents.map(e => ({
+      id: e.id,
+      company: e.company,
+      companyKey: e.company.replace(/\s/g, '').toLowerCase(),
+      category: e.category,
+      title: e.title,
+      date: e.date,
+      format: e.format,
+      formatKey: e.format && e.format.includes('オンライン') ? 'online' : 'offline',
+      url: e.url || '#',
+    }));
+    renderList();
+    updateFilterButtons();
+  } catch(err) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626">データの読み込みに失敗しました</div>';
+  }
+}
+
+function updateFilterButtons() {
+  const companies = [...new Set(allEvents.map(e => e.company))];
+  const bar = document.getElementById('filterBar');
+  const staticBtns = `
+    <button class="filter-btn active" onclick="filterEvents('all', this)">すべて</button>
+    ${companies.map(c => `<button class="filter-btn" onclick="filterEvents('${c}', this)">${c}</button>`).join('')}
+    <button class="filter-btn" onclick="filterEvents('online', this)">オンライン</button>
+    <button class="filter-btn" onclick="filterEvents('offline', this)">対面</button>
+  `;
+  bar.innerHTML = staticBtns;
+}
+
+db.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  updateNav();
+});
+
+function updateNav() {
+  const nav = document.getElementById('navRight');
+  if (currentUser) {
+    nav.innerHTML = `
+      <div class="user-info">
+        <div class="user-avatar">${currentUser.email[0].toUpperCase()}</div>
+        <span style="font-size:12px;color:var(--gray)">${currentUser.email}</span>
+      </div>
+      <button class="btn btn-outline" onclick="handleLogout()">ログアウト</button>
+    `;
+  } else {
+    nav.innerHTML = `
+      <button class="btn btn-outline" onclick="openModal('login')">ログイン</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">新規登録</button>
+    `;
+  }
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = 'メールアドレスまたはパスワードが正しくありません'; errEl.style.display = 'block'; }
+  else closeModal('login');
+}
+
+async function handleSignup() {
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const name = document.getElementById('signupName').value;
+  const univ = document.getElementById('signupUniv').value;
+  const year = document.getElementById('signupYear').value;
+  const errEl = document.getElementById('signupError');
+  errEl.style.display = 'none';
+
+  if (!email || !password || !name || !univ || !year) {
+    errEl.textContent = 'すべての項目を入力してください';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 8) {
+    errEl.textContent = 'パスワードは8文字以上にしてください';
+    errEl.style.display = 'block';
+    return;
+  }
+  const { error } = await db.auth.signUp({ email, password, options: { data: { name, university: univ, year } } });
+  if (error) { errEl.textContent = '登録に失敗しました: ' + error.message; errEl.style.display = 'block'; }
+  else { closeModal('signup'); alert('確認メールを送信しました。メールをご確認ください。'); }
+}
+
+async function handleLogout() { await db.auth.signOut(); }
+
+function openModal(type) { document.getElementById(type + 'Modal').classList.add('active'); }
+function closeModal(type) { document.getElementById(type + 'Modal').classList.remove('active'); }
+
+function toggleFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const btn = document.getElementById('toggleFilter');
+  bar.classList.toggle('expanded');
+  btn.textContent = bar.classList.contains('expanded') ? '▲ 閉じる' : '▼ すべて見る';
+}
+
+function filterEvents(key, btn) {
+  currentFilter = key;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('eventList');
+  let filtered = allEvents.filter(e => new Date(e.date) >= new Date());
+
+  if (currentFilter === 'online') filtered = filtered.filter(e => e.formatKey === 'online');
+  else if (currentFilter === 'offline') filtered = filtered.filter(e => e.formatKey === 'offline');
+  else if (currentFilter !== 'all') filtered = filtered.filter(e => e.company === currentFilter);
+
+  filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+  document.getElementById('countBadge').textContent = filtered.length + '件';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty">該当する説明会はありません</div>';
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(e => {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}年${d.getMonth()+1}月`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(e);
+  });
+
+  const labelMap = { drug: 'ドラッグストア', pharmacy: '調剤薬局', general: '一般企業' };
+
+  list.innerHTML = Object.entries(grouped).map(([month, events]) => `
+    <div class="section-label">${month}</div>
+    ${events.map(e => {
+      const d = new Date(e.date);
+      const c = e.category || 'drug';
+      return `
+        <div class="event-card card-${c}">
+          <div class="event-date-box date-${c}">
+            <div class="month day-${c}">${d.getMonth()+1}月</div>
+            <div class="day day-${c}">${d.getDate()}</div>
+            <div class="weekday">${weekdays[d.getDay()]}曜</div>
+          </div>
+          <div class="event-info">
+            <div class="event-company">
+              ${e.company}
+              <span class="category-badge badge-${c}">${labelMap[c] || c}</span>
+            </div>
+            <div class="event-name">${e.title}</div>
+            <div class="event-meta">
+              <span class="event-tag">📍 ${e.format}</span>
+            </div>
+          </div>
+          <a class="btn-apply apply-${c}" href="${e.url}?utm_source=pharmacalendar" target="_blank">申込む</a>
+        </div>
+      `;
+    }).join('')}
+  `).join('');
+}
+
+fetchEvents();
+</script>
+</body>
+</html>
