@@ -858,20 +858,22 @@ async function confirmApply() {
 
   // 3. Edge FunctionでResendを呼び出してメール送信
   try {
-    await fetch('https://hufguvidrswxlhprjyml.supabase.co/functions/v1/send-email', {
+    const payload = {
+      studentEmail: currentUser.email,
+      company:      pendingApplyEvent.company,
+      eventTitle:   pendingApplyEvent.title,
+      eventDate:    pendingApplyEvent.date,
+      companyEmail: companyData?.email || null,
+    };
+    const res = await fetch('https://hufguvidrswxlhprjyml.supabase.co/functions/v1/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_KEY}`,
       },
-      body: JSON.stringify({
-        studentEmail: currentUser.email,
-        company:      pendingApplyEvent.company,
-        eventTitle:   pendingApplyEvent.title,
-        eventDate:    pendingApplyEvent.date,
-        companyEmail: companyData?.email || null,
-      }),
+      body: JSON.stringify(payload),
     });
+    console.log('Edge Function response:', res.status, await res.text());
   } catch(e) {
     console.error('メール送信エラー:', e);
   }
