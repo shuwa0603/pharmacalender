@@ -649,7 +649,7 @@ async function handleSignup() {
     errEl.style.display = 'block';
     return;
   }
-  const { error } = await db.auth.signUp({
+  const { data: signUpData, error } = await db.auth.signUp({
     email, password,
     options: { data: { name, university: univ, year } }
   });
@@ -657,6 +657,12 @@ async function handleSignup() {
     errEl.textContent = '登録に失敗しました: ' + error.message;
     errEl.style.display = 'block';
   } else {
+    if (signUpData?.user) {
+      await db.from('profiles').upsert({
+        id: signUpData.user.id,
+        name, university: univ, year
+      });
+    }
     closeModal('signup');
     alert('確認メールを送信しました。メールをご確認ください。');
   }
@@ -849,12 +855,11 @@ async function confirmApply() {
     return;
   }
 
-  // 2. 企業メールをSupabaseから取得
-  const { data: companyData } = await db
-    .from('company_emails')
-    .select('email')
-    .eq('company', pendingApplyEvent.company)
-    .single();
+  // 2. 企業メールとプロフィールをSupabaseから取得
+  const [{ data: companyData }, { data: profileData }] = await Promise.all([
+    db.from('company_emails').select('email').eq('company', pendingApplyEvent.company).single(),
+    db.from('profiles').select('name, university, year').eq('id', currentUser.id).single(),
+  ]);
 
   // 3. Edge FunctionでResendを呼び出してメール送信
   try {
@@ -864,6 +869,9 @@ async function confirmApply() {
       eventTitle:   pendingApplyEvent.title,
       eventDate:    pendingApplyEvent.date,
       companyEmail: companyData?.email || null,
+      studentName:  profileData?.name || '不明',
+      university:   profileData?.university || '不明',
+      year:         profileData?.year || '不明',
     };
     const res = await fetch('https://hufguvidrswxlhprjyml.supabase.co/functions/v1/send-email', {
       method: 'POST',
